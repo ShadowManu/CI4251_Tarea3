@@ -1,5 +1,6 @@
 
 module Buffer (
+  Buffer,
   empty,
   cursor,
   insert,
@@ -12,9 +13,6 @@ module Buffer (
 ) where
 
 type Buffer = (String, String)
-
-ejemplo :: Buffer
-ejemplo =  ( " , olpmeje nu se otsE " ," de como opera el buffer " )
 
 -- Buffer nuevo
 empty :: Buffer
