@@ -1,4 +1,6 @@
-import Data.Maybe (fromJust)
+{-# LANGUAGE TemplateHaskell #-}
+
+import Data.Maybe (fromJust, isNothing)
 import Test.QuickCheck
 
 import Buffer
@@ -6,13 +8,18 @@ import Buffer
 fromBuffer :: Buffer -> String
 fromBuffer (bef, aft) = reverse bef ++ aft
 
-newtype NoBefore = NoBefore { fromNoBefore :: Buffer }
-newtype NoAfter = NoAfter { fromNoAfter :: Buffer}
+newtype NoBefore = NoBefore Buffer deriving Show
+newtype NoAfter = NoAfter Buffer deriving Show
 
 instance Arbitrary NoBefore where
   arbitrary = do
     after <- arbitrary :: Gen String
     return $ NoBefore ("", after)
+
+instance Arbitrary NoAfter where
+  arbitrary = do
+    before <- arbitrary :: Gen String
+    return $ NoAfter (before, "")
 
 -- EMPTY PROPS
 
@@ -22,7 +29,7 @@ prop_emptyBuffer b = (atLeft b && atRight b) == (b == empty)
 -- CURSOR PROPS
 
 prop_emptyBufferHasNothingOnCursor :: Bool
-prop_emptyBufferHasNothingOnCursor = cursor empty == Nothing
+prop_emptyBufferHasNothingOnCursor = isNothing (cursor empty)
 
 prop_cursorLeftGetsInsert :: Char -> Buffer ->Bool
 prop_cursorLeftGetsInsert c b = (fromJust . cursor . left . insert c $ b) == c
@@ -42,11 +49,17 @@ prop_insertAndLeftDualRemove c b = (remove . left . insert c) b == b
 
 -- DELETE PROPS
 
+prop_deleteIdempotentAtLeft :: NoBefore -> Bool
+prop_deleteIdempotentAtLeft (NoBefore b) = delete b == b
+
 prop_deleteDecreasesBuffer :: Buffer -> Property
 prop_deleteDecreasesBuffer b = (not . atLeft $ b) ==>
   (length . fromBuffer . delete $ b) == (length . fromBuffer $ b) - 1
 
 -- REMOVE PROPS
+
+prop_removeIdempotentAtRight :: NoAfter -> Bool
+prop_removeIdempotentAtRight (NoAfter b) = remove b == b
 
 prop_removeDecreasesBuffer :: Buffer -> Property
 prop_removeDecreasesBuffer b = (not . atRight $ b) ==>
@@ -54,33 +67,29 @@ prop_removeDecreasesBuffer b = (not . atRight $ b) ==>
 
 -- LEFT PROPS
 
+prop_leftIdempotentAtLeft :: NoBefore -> Bool
+prop_leftIdempotentAtLeft (NoBefore b) = left b == b
+
 prop_leftDualRight :: Buffer -> Property
 prop_leftDualRight b = (not . atLeft $ b) ==>
     (right . left $ b) == b
 
 -- RIGHT PROPS
 
+prop_rightIdempotentAtRight :: NoAfter -> Bool
+prop_rightIdempotentAtRight (NoAfter b) = right b == b
+
 prop_rightDualLeft :: Buffer -> Property
 prop_rightDualLeft b = (not . atRight $ b) ==>
   (left . right $ b) == b
 
+-- Quickcheck Setup
 
-main :: IO ()
-main = do
-  -- EMPTY PROPS
-  quickCheck prop_emptyBuffer
-  -- CURSOR PROPS
-  quickCheck prop_emptyBufferHasNothingOnCursor
-  quickCheck prop_cursorLeftGetsInsert
-  -- INSERT PROPS
-  quickCheck prop_insertIncreasesBuffer
-  quickCheck prop_insertDualDelete
-  quickCheck prop_insertAndLeftDualRemove
-  -- DELETE PROPS
-  quickCheck prop_deleteDecreasesBuffer
-  -- REMOVE PROPS
-  quickCheck prop_removeDecreasesBuffer
-  -- LEFT PROPS
-  quickCheck prop_leftDualRight
-  -- RIGHT PROPS
-  quickCheck prop_rightDualLeft
+return []
+runTests :: IO Bool
+runTests = $quickCheckAll
+
+-- Run all property tests
+
+main :: IO Bool
+main = runTests
