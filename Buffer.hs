@@ -1,3 +1,14 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  Buffer
+-- Copyright   :  (c) Manuel Pacheco 2016
+-- License     :  MIT
+--
+-- Maintainer  :  manuelalejandropm@gmail.com
+--
+-- Simple Terminal Buffer implementation
+--
+-----------------------------------------------------------------------------
 
 module Buffer (
   Buffer,
