@@ -32,23 +32,26 @@ eol = try (string "\n\r")
 codeUntilEol :: Parser String
 codeUntilEol = many1 $ noneOf "\n\r"
 
+multipleSpace :: Parser Char
+multipleSpace = skipMany1 (oneOf " \t") >> return ' '
+
 textUntilEol :: Parser String
 textUntilEol = do
   notFollowedBy $ string "> "
-  many1 $ noneOf "\n\r"
+  many1 (noneOf " \t\n\r" <|> multipleSpace)
 
 mainHeader :: Parser String
 mainHeader = do
+  optional spaces
   _ <- char '*'
-  spaces
-  content <- many1 $ noneOf "\n"
+  content <- textUntilEol
   return $ "<h1>" ++ content ++ "</h1>"
 
 secondHeader :: Parser String
 secondHeader = do
+  optional spaces
   _ <- char '#'
-  spaces
-  content <- many1 $ noneOf "\n"
+  content <- textUntilEol
   return $ "<h2>" ++ content ++ "</h2>"
 
 hsLine :: Parser String
@@ -59,7 +62,7 @@ hsLine = do
 hsCode :: Parser String
 hsCode = do
   ls <- endBy1 hsLine eol
-  return $ "<code>" ++ intercalate "<br />" ls ++ "</code>"
+  return $ "<code>" ++ intercalate "<br>" ls ++ "</code>"
 
 paragraph :: Parser String
 paragraph = do
