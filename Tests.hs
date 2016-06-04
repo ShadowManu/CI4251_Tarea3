@@ -9,6 +9,9 @@
 -- Test Properties using testing library QuickCheck
 -- to test the Buffer library
 --
+-- you can compile, run tests and see test coverage using:
+--   ghc -fhpc -fforce-recomp --make Tests.hs && ./Tests && hpc report Tests.tix
+--
 -----------------------------------------------------------------------------
 
 {-# LANGUAGE TemplateHaskell #-}
