@@ -1,4 +1,6 @@
 import Text.ParserCombinators.Parsec
+
+import System.Environment (getArgs)
 import Data.List (intercalate)
 
 -- UTILITY PARSERS
@@ -59,14 +61,18 @@ lhs = do
   eof
   return $ concat elems
 
-parseLHS :: String -> Either ParseError String
-parseLHS = parse lhs "lhs"
+parseAndShow :: FilePath -> String -> String
+parseAndShow filename input = case parse lhs filename input of
+  Left c -> "Error: " ++ show c
+  Right r -> r
+
+nameToHtml :: String -> String
+nameToHtml ".lhs" = ".html"
+nameToHtml (x:xs) = x : nameToHtml xs
+nameToHtml "" = ""
+
+parseFile :: FilePath -> IO ()
+parseFile path = readFile path >>= writeFile (nameToHtml path) . parseAndShow path
 
 main :: IO ()
-main = do
-  input <- getContents
-  case parseLHS input of
-    Left c -> do
-      putStrLn "Error: "
-      print c
-    Right r -> putStrLn r
+main = getArgs >>= mapM_ parseFile
