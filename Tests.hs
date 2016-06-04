@@ -1,3 +1,16 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  Tests
+-- Copyright   :  (c) Manuel Pacheco 2016
+-- License     :  MIT
+--
+-- Maintainer  :  manuelalejandropm@gmail.com
+--
+-- Test Properties using testing library QuickCheck
+-- to test the Buffer library
+--
+-----------------------------------------------------------------------------
+
 {-# LANGUAGE TemplateHaskell #-}
 
 import Data.Maybe (fromJust, isNothing)
