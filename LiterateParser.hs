@@ -35,10 +35,21 @@ codeUntilEol = many1 $ noneOf "\n\r"
 multipleSpace :: Parser Char
 multipleSpace = skipMany1 (oneOf " \t") >> return ' '
 
+sanitize :: String -> String
+sanitize = concatMap sanitizer
+  where
+    sanitizer '&' = "&amp;"
+    sanitizer '<' = "&lt;"
+    sanitizer '>' = "&gt;"
+    sanitizer x = [x]
+
 textUntilEol :: Parser String
 textUntilEol = do
   notFollowedBy $ string "> "
-  many1 (noneOf " \t\n\r" <|> multipleSpace)
+  text <- many1 (noneOf " \t\n\r" <|> multipleSpace)
+  return $ sanitize text
+
+-- CORE PARSERS
 
 mainHeader :: Parser String
 mainHeader = do
