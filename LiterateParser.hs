@@ -1,3 +1,20 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  LiterateParser
+-- Copyright   :  (c) Manuel Pacheco 2016
+-- License     :  MIT
+--
+-- Maintainer  :  manuelalejandropm@gmail.com
+--
+-- Parses a simple subset of lhs file and renders html from it
+--
+-- you can compile and run the parser/renderer on multiple files doing:
+--   ghc --make LiterateParser.hs && ./LiterateParser file1.lhs file2.lhs
+--
+-- Results will appear on files: file1.html and file2.html
+--
+-----------------------------------------------------------------------------
+
 import Text.ParserCombinators.Parsec
 
 import System.Environment (getArgs)
